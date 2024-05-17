@@ -6,6 +6,7 @@
 import os
 
 
+# 获取文件信息
 def run(**args):
     print("[*] In dirlister module")
     files = os.listdir(".")  # 列出当前目录下的所有文件
