@@ -82,6 +82,7 @@ def run():
     while time.thread_time() < TIMEOUT:
         pythoncom.PumpWaitingMessages()
 
+    print('done.')
     return kl.log_messages  # 返回日志消息列表
 
 
