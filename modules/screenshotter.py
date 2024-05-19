@@ -3,10 +3,10 @@
 作者：shinian
 创建日期：2024/5/19 21:21
 """
-import win32api
-import win32con
-import win32gui
-import win32ui
+import win32api  # 导入用于获取系统度量的模块
+import win32con  # 导入Windows常量的模块
+import win32gui  # 导入Windows GUI操作的模块
+import win32ui  # 导入Windows UI操作的模块
 
 
 def get_dimensions():
@@ -25,12 +25,15 @@ def screenshot(name='screenshot'):
     img_dc = win32ui.CreateDCFromHandle(desktop_dc)
     mem_dc = img_dc.CreateCompatibleDC()
 
-    screenShot = win32ui.CreateBitmap()
-    screenShot.CreateCompatibleBitmap(img_dc, width, height)
+    screenshot = win32ui.CreateBitmap()
+    screenshot.CreateCompatibleBitmap(img_dc, width, height)
+    mem_dc.SelectObject(screenshot)
     mem_dc.BitBlt((0, 0), (width, height), img_dc, (left, top), win32con.SRCCOPY)
-    screenShot.SaveBitmapFile(mem_dc, f'{name}.bmp')
 
-    mem_dc.DeleteObject(screenShot.GetHandle())
+    screenshot.SaveBitmapFile(mem_dc, f'{name}.bmp')
+
+    mem_dc.DeleteDC()
+    win32gui.DeleteObject(screenshot.GetHandle())
 
 
 def run():
