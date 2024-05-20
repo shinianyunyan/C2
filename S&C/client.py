@@ -38,3 +38,6 @@ def cmd(name):
 
     # 跳出文件处理的循环，但不是退出连接
     return str(m_stdout)
+
+if __name__ == '__main__':
+    app.run('127.0.0.1', 80, True)

