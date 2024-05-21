@@ -1,18 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>result</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Command Result</title>
+    <style>
+        .result-container {
+            width: 80%;
+            height: 600px; /* 设置固定高度 */
+            overflow-y: scroll; /* 垂直方向滚动条 */
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 20px auto; /* 居中 */
+        }
+        pre {
+            white-space: pre-wrap; /* 保留换行符 */
+            font-family: monospace; /* 使用等宽字体 */
+            text-align: left; /* 左对齐 */
+        }
+    </style>
 </head>
 <body>
-<form action="http://127.0.0.1:90/activate/" method="get">
-	<input type="text" name="name">cmd
-	<input type="submit">
-</form>
-<div>
-	<p>命令的结果为：</p>
-		{{ content }}
-</div>
+    <form action="http://127.0.0.1:90/activate/" method="post">
+        <input type="hidden" name="ip" value="{{ ip }}">
+        <input type="text" name="command">
+        <input type="submit">
+    </form>
+    <h2>命令执行结果为：</h2>
+    <div class="result-container">
+        <pre>{{ content }}</pre>
+    </div>
 </body>
 </html>

