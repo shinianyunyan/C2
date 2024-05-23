@@ -3,7 +3,6 @@
 作者：shinian
 日期：2022/12/19 10:58
 """
-import pygame
 from pygame.locals import *
 
 from gameHud import *

