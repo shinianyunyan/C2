@@ -347,4 +347,4 @@ if __name__ == '__main__':
     download_thread.join()
 
     # 启动文件下载过程
-    run()
+    start()

