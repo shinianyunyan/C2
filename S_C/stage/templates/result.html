@@ -96,7 +96,7 @@
     <h2>命令执行</h2>
     <form action="http://192.168.117.190:8080/activate/" method="post">
         <input type="hidden" name="ip" value="{{ ip }}"> <!-- 隐藏字段，用于传递 IP 地址 -->
-        <input type="text" name="command" placeholder="请在这里输入命令，不要有空格..."> <!-- 文本输入框，用于输入命令 -->
+        <input type="text" name="command" placeholder="请在这里输入命令..."> <!-- 文本输入框，用于输入命令 -->
         <input type="submit" value="发送命令"> <!-- 提交按钮 -->
         <a class="logout-link" href="/logout">退出登录</a> <!-- 退出登录链接 -->
     </form>

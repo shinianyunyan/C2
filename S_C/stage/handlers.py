@@ -131,7 +131,7 @@ def activate():
         with open('data/result.txt', 'w') as f:
             f.write('')  # 清空结果文件
         en_cmd = base64.b64encode(cmd.encode('utf-8')).decode('utf-8')  # 对命令进行Base64编码
-        # 发送请求
+        # 发送命令至客户端
         requests.get(f'http://{ip}/cmd/{en_cmd}')
         return redirect(url_for('result', ip=ip))  # 重定向到结果页面
     else:
